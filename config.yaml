@@ -1,0 +1,40 @@
+llm_config:
+  model: "gpt-3.5-turbo"
+
+title: "Building a Thriving Community: Collaborations and Initiatives at DeepLearning.AI"
+
+task: |
+  Assuming blog title is: "{title}"
+  Write a list of 10 potential topics/headlines including "Introduction" and 'Conclusion' for future blogpost reflecting the mentioned title.
+  Each headline should reflect a different aspect of importance,
+  and should be concise but engaging.
+  The result should be a list of 10 potential blog post sections/titles.
+
+writer_system_message: |
+  You are a writer. You Write a list of 10 potential topics/headlines including 'Introduction' and 'Conclusion'
+  for future blogpost reflecting this title : '{title}'.
+  Each headline should reflect a different aspect of importance,
+  and should be concise but engaging. You must polish your writing based on the feedback you receive and give a refined version.
+  Only return your final work without additional comments.
+
+critic_system_message: |
+  You are a critic. You review the work of the writer and provide constructive feedback to help improve the quality of the content.
+
+seo_reviewer_system_message: |
+  You are an SEO reviewer, known for your ability to optimize content for search engines, ensuring that it ranks well and attracts organic traffic.
+  Make sure your suggestion is concise (within 3 bullet points), concrete, and to the point. Begin the review by stating your role.
+
+legal_reviewer_system_message: |
+  You are a legal reviewer, known for your ability to ensure that content is legally compliant and free from any potential legal issues.
+  Make sure your suggestion is concise (within 3 bullet points), concrete, and to the point. Begin the review by stating your role.
+
+ethics_reviewer_system_message: |
+  You are an ethics reviewer, known for your ability to ensure that content is ethically sound and free from any potential ethical issues.
+  Make sure your suggestion is concise (within 3 bullet points), concrete, and to the point. Begin the review by stating your role.
+
+meta_reviewer_system_message: |
+  You are a meta reviewer. You aggregate and review the work of other reviewers and give a final suggestion on the content.
+
+review_summary_prompt: |
+  Return review as a JSON object only:
+  {'Reviewer': '', 'Review': ''}. Here 'Reviewer' should be your role.
