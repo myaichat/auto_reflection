@@ -1,22 +1,7 @@
 from    os.path import join
 from   pprint import pprint as pp   
 import rich
-from rich.console import Console
-from rich.panel import Panel
-from rich.syntax import Syntax
-from rich.markdown import Markdown
-from openai import OpenAI
-#style="grey", style="bold blue", style="italic yellow", style="underline green".
-#border_style="bold red", border_style="#FF5733", or border_style="cyan".
-#box=rich.box.ROUNDED, box=rich.box.SQUARE, box=rich.box.MINIMAL
-console = Console()
-
-def resp(msg, title):
-    console.print(Panel(msg, title=title, title_align="left", border_style="cyan", 
-                    style="#FF5733", box=rich.box.ROUNDED))
-def promp(msg, title):
-    console.print(Panel(msg, title=title, title_align="left", border_style="white", style="underline green", 
-                    box=rich.box.MINIMAL, highlight=True))
+from include.common import *
         
 class AssistantAgent:
     def __init__(self, name, system_message, llm_config):
@@ -98,9 +83,9 @@ for key, val in vars.items( ):
         vars[key] = globals()[val]
 pp(vars)
 
-task = data['task'].format(**vars)
+task = data['agents']['Writer']['task'].format(**vars)
 console.print(task, style="bold yellow")
-
+exit
 class Writer():
     def __init__(self, data, vars,  verbose=False):
         self.verbose=verbose
@@ -172,9 +157,7 @@ if 1:
 #exit()
 if 1:
     # critique is already in writer's chat history (receiever=writer)
-    revision_task = f'''
-    Please rewrite the list of blog topics according to Critic's  feedback, ensuring that all points raised by the Critic are addressed and that the final version is more polished and engaging.
-    '''
+    revision_task = data['agents']['Writer']['revision_task']
     
     # Pass the prompt to the Writer for rewriting the topics
     revised_response = writer.generate_reply(revision_task)
