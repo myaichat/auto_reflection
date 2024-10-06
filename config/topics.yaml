@@ -20,18 +20,20 @@ agents:
       "including 'Introduction' and 'Conclusion' for the blogpost title: "
       f"'{title}'. Focus on making each headline concise, engaging, and reflective of different aspects "
       "of the blog topic. be concise "
-    task: |
-      Assuming blog title is: "{title}"
-      Write a list of 5 potential topics/headlines including "Introduction" and "Conclusion" for future blogpost reflecting mentioned title.
-      Each headline should reflect a different aspect of importance,
-      and should be concise but engaging. Just return list of titles
+    tasks:
 
-    revision_task: |
-      Please rewrite the list of blog topics according to Critic's  feedback, ensuring that all points raised by the Critic are addressed and that the final version is more polished and engaging.
+      initial_task: |
+        Assuming blog title is: "{title}"
+        Write a list of 5 potential topics/headlines including "Introduction" and "Conclusion" for future blogpost reflecting mentioned title.
+        Each headline should reflect a different aspect of importance,
+        and should be concise but engaging. Just return list of titles
+
+      revision_task: |
+        Please rewrite the list of blog topics according to Critic's  feedback, ensuring that all points raised by the Critic are addressed and that the final version is more polished and engaging.
+      
+
+      final_task: Please revise the list of blog topics according to Meta Summarizer feedback, making sure to address all the suggestions and improve the quality accordingly. Just return the revised version of the blog topics, nothing else.
     
-
-    final_task: Please revise the list of blog topics according to Meta Summarizer feedback, making sure to address all the suggestions and improve the quality accordingly. Return the revised version of the blog topics.
-  
   Critic: 
     system_message: "You are a critic. You review the work of the writer and provide constructive feedback to help improve the quality of the content. Do not provide 'Revised Titles Suggestions'.. Do not inclure improved titles into your responce"
     reflection_prompt: "Please review the list of blog titles created by Writer  and suggest improvements."

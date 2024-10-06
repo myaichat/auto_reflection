@@ -2,7 +2,7 @@ from    os.path import join
 from   pprint import pprint as pp   
 
 from include.common import *
-from  include.bloggers import Writer, Critic, Reviewer, Summarizer
+from  include.agents.reflection_bloggers import Writer, Critic, Reviewer, Summarizer
 
     
 import yaml

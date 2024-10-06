@@ -1,63 +1,81 @@
+
+import yaml
 from    os.path import join
 from   pprint import pprint as pp   
 
 from include.common import *
-from  include.agents.reflection_bloggers import Writer, Critic, Reviewer, Summarizer
-
-    
-import yaml
 
 
 
+import  include.config.init_config as  init_config
 
+init_config.init(**{})
+apc = init_config.apc
 
-
-
-
+apc.verbose = True
 
 
 def generate_topics(title, config):
 
 
     with open(config, 'r') as file:
-        data = yaml.safe_load(file)
+        apc.data=data = yaml.safe_load(file)
 
-    vars=  data['vars']
+    apc.vars=vars=  data['vars']
     for key, val in vars.items( ):
         if val in globals():
             vars[key] = locals()[val]
     pp(vars)
+    
+    import pipeline.blog_writer as pipeline
+    for chat in pipeline.chats:
+        pp(chat)
+        agent=chat['agent']
+        add_history_from=chat.get('add_history_from', [])
+        for from_agent  in add_history_from:
+            agent.add_history(from_agent.get_latest_history())
+        
+        
+        action_method=chat['action']
+        action=getattr(agent, action_method) 
+        agent_kwargs=chat.get('kwargs', {})
+        action(**agent_kwargs)
+        
 
-    task = data['agents']['Writer']['task'].format(**vars)
-    console.print(task, style="bold yellow")
+    exit()
+
+
+    #task = data['agents']['Writer']['task'].format(**vars)
+    #console.print(task, style="bold yellow")
 
         
-    if 1:
-        writer = Writer(data, vars, verbose=True)
+    if 0:
+        writer = Writer( verbose=True)
         
-        initial_response = writer.generate_reply(task)
-
+        initial_response = writer.generate_reply('initial_task')
+    exit()    
     if 1:
         task_msg={"role": "user", "content": task}
         writer_msg={"role": "assistant", "content": f'List of topics returned by writer:\n\n{writer.agent_response}\n\n'}
-        critic = Critic(data, vars,receiever=writer, verbose=True)
+        critic = Critic( verbose=True)
         critic.add_history([task_msg, writer_msg])
         critic_response = critic.reflect_with_llm()
 
+    exit()
     if 1:
         revision_task = data['agents']['Writer']['revision_task']
         revised_response = writer.generate_reply(revision_task)
 
     if 1:
-        seo_reviewer = Reviewer("SEO Reviewer", data, vars, verbose=True)
+        seo_reviewer = Reviewer("SEO Reviewer", verbose=True)
         seo_reviewer.add_history([task_msg, writer_msg])
         seo_reviewer_response = seo_reviewer.reflect_with_llm()
     if 1:
-        legal_reviewer = Reviewer("Legal Reviewer", data, vars, verbose=True)
+        legal_reviewer = Reviewer("Legal Reviewer", verbose=True)
         legal_reviewer.add_history([task_msg, writer_msg])
         legal_reviewer_response = legal_reviewer.reflect_with_llm()
     if 1:
-        ethics_reviewer = Reviewer("Ethics Reviewer", data, vars, verbose=True)
+        ethics_reviewer = Reviewer("Ethics Reviewer", verbose=True)
         ethics_reviewer.add_history([task_msg, writer_msg])
         ethics_reviewer_response = ethics_reviewer.reflect_with_llm()
     if 1:
@@ -65,7 +83,7 @@ def generate_topics(title, config):
         legal_msg ={"role": "assistant", "content": f"Legal Reviewer Feedback:\n{legal_reviewer.agent_response}"}
         ethics_msg ={"role": "assistant", "content": f"Ethics Reviewer Feedback:\n{ethics_reviewer.agent_response}"}
             
-        meta_summarizer = Summarizer("Meta Summarizer", data, vars, verbose=True)
+        meta_summarizer = Summarizer("Meta Summarizer", verbose=True)
         meta_summarizer.add_history([task_msg, writer_msg, seo_msg, legal_msg, ethics_msg])
         meta_summarizer_response = meta_summarizer.summarize()
 

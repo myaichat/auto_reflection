@@ -1,5 +1,5 @@
 from openai import OpenAI
-
+from pprint import pprint as pp
 
 class AssistantAgent:
     def __init__(self, name, system_message, llm_config):
@@ -37,6 +37,8 @@ class AssistantAgent:
             "role": "user",
             "content": reflection_prompt
         }
+        #pp(reflection_message)
+        #pp(self.chat_history)
         response = self.client.chat.completions.create(
             model=self.llm_config["model"],
             messages=[
