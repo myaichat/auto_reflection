@@ -1,4 +1,4 @@
-import  sys, json, codecs
+import  os, sys, json, codecs
 import re
 from pubsub import pub
 from pprint import pprint as pp
@@ -6,12 +6,40 @@ from include.common import PropertyDefaultDict
 from pubsub import pub
 from datetime import datetime
 from datetime import date
-from os.path import join    
+from os.path import join, basename, isdir, isfile, splitext   
 
-from os.path import isfile
 
 
 e=sys.exit
+
+class CustomEncoder(json.JSONEncoder):
+    def default(self, obj):
+        # Handle non-serializable objects here
+        if hasattr(obj, '__dict__'):
+            # Convert objects with __dict__ attribute to a dictionary
+            return obj.__dict__
+        elif isinstance(obj, dict):
+            # Convert keys to strings if necessary
+            return {str(key) if not isinstance(key, (str, int, float, bool, type(None))) else key: value
+                    for key, value in obj.items()}
+        elif isinstance(obj, list):
+            # Recursively handle lists
+            return [self.default(item) for item in obj]
+        else:
+            # Fallback to string representation for other types
+            return str(obj)
+
+# Recursive function to convert all dict values
+def make_serializable(d):
+    for key, value in d.items():
+        if isinstance(value, dict):
+            make_serializable(value)  # Recursive call for nested dicts
+        elif not isinstance(value, (int, float, str, list, dict)):
+            # Convert non-serializable objects to their string representation or dict
+            d[key] = json.dumps(value, cls=CustomEncoder)
+
+
+
 class MutableAttribute:
     def __init__(self):
         self.parent = None
@@ -35,17 +63,75 @@ class MutableAttribute:
         self.notify_change(processed_value)
 
     def process(self, value):
-        print('777 Processing:', self.real_name, value)
+        print('77711 Processing:', self.real_name, value)
+        new_value = {}
+        for key, val in value.items():
+            print(222, type(val))
+            if not isinstance(val, (str, dict,int, float, bool, type(None))):
+                print('\t 999 Processing:', self.real_name, str(val))
+                new_value[key] =str(value)
+            else:
+                new_value[key] = val
+        if new_value:
+            pp(value)
+            value= new_value        
         if hasattr(self.parent, 'process'):
+
             return self.parent.process(self.real_name, value)
+
         return value
 
     def notify_change(self, value):
         pub.sendMessage(f'{self.real_name}_changed', value=value)
         print('888 Notifying:', self.real_name, value)
+
+        
         #pub.sendMessage('{self.real_name}_changed', name=self.real_name, value=value)
 
 
+class NotifyingList(list):
+    def __init__(self, *args, parent=None, key=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.parent = parent
+        self.key = key
+        self._processing = False
+        for i, v in enumerate(self):
+            if isinstance(v, dict):
+                self[i] = NotifyingDict(v, parent=self, key=i)
+            elif isinstance(v, list):
+                self[i] = NotifyingList(v, parent=self, key=i)
+
+    def __setitem__(self, index, value):
+        if isinstance(value, dict):
+            value = NotifyingDict(value, parent=self, key=index)
+        elif isinstance(value, list):
+            value = NotifyingList(value, parent=self, key=index)
+        super().__setitem__(index, value)
+        self.propagate_change()
+
+    def append(self, value):
+        if isinstance(value, dict):
+            value = NotifyingDict(value, parent=self, key=len(self))
+        elif isinstance(value, list):
+            value = NotifyingList(value, parent=self, key=len(self))
+        super().append(value)
+        self.propagate_change()
+
+    def extend(self, iterable):
+        for v in iterable:
+            if isinstance(v, dict):
+                v = NotifyingDict(v, parent=self, key=len(self))
+            elif isinstance(v, list):
+                v = NotifyingList(v, parent=self, key=len(self))
+            super().append(v)
+        self.propagate_change()
+
+    def propagate_change(self):
+        if self.parent and not self._processing:
+            if isinstance(self.parent, NotifyingDict) or isinstance(self.parent, NotifyingList):
+                self.parent.propagate_change()
+            elif isinstance(self.parent, MutableDictAttribute):
+                self.parent.child_changed()
 
 
 
@@ -55,20 +141,26 @@ class NotifyingDict(dict):
         self.parent = parent
         self.key = key
         self._processing = False
+
+        # Recursively wrap nested dictionaries and lists
         for k, v in self.items():
             if isinstance(v, dict):
                 self[k] = NotifyingDict(v, parent=self, key=k)
+            elif isinstance(v, list):
+                self[k] = NotifyingList(v, parent=self, key=k)
 
     def __setitem__(self, key, value):
+        # Automatically wrap dictionaries and lists in NotifyingDict or NotifyingList
         if isinstance(value, dict) and not isinstance(value, NotifyingDict):
             value = NotifyingDict(value, parent=self, key=key)
+        elif isinstance(value, list) and not isinstance(value, NotifyingList):
+            value = NotifyingList(value, parent=self, key=key)
+        
         super().__setitem__(key, value)
         self.propagate_change()
-        
 
     def __getattr__(self, name):
         try:
-            
             return self[name]
         except KeyError:
             raise AttributeError(f"'NotifyingDict' object has no attribute '{name}'")
@@ -78,21 +170,20 @@ class NotifyingDict(dict):
             super().__setattr__(name, value)
         else:
             self[name] = value
-        
 
     def propagate_change(self):
         if self.parent and not self._processing:
-            if isinstance(self.parent, NotifyingDict):
+            if isinstance(self.parent, NotifyingDict) or isinstance(self.parent, NotifyingList):
                 self.parent.propagate_change()
             elif isinstance(self.parent, MutableDictAttribute):
                 self.parent.child_changed()
+
 
 class MutableDictAttribute:
     def __init__(self):
         self.parent = None
         self.name = None
         self.real_name = None
-
 
     def __set_name__(self, owner, name):
         self.name = f"_{name}"
@@ -101,7 +192,6 @@ class MutableDictAttribute:
     def __get__(self, obj, objtype=None):
         if self.parent is None:
             self.parent = obj
-        
         return getattr(obj, self.name, None)
 
     def __set__(self, obj, value):
@@ -110,14 +200,14 @@ class MutableDictAttribute:
         processed_value = self.process(value)
         if isinstance(processed_value, dict):
             processed_value = NotifyingDict(processed_value, parent=self, key=self.real_name)
+        elif isinstance(processed_value, list):
+            processed_value = NotifyingList(processed_value, parent=self, key=self.real_name)
         setattr(obj, self.name, processed_value)
-        
 
     def process(self, value):
-        print('222 Processing:', self.real_name, value)
+        # Hook for any processing before setting the value
         if hasattr(self.parent, 'process'):
             return self.parent.process(self.real_name, value)
-         
         return value
 
     def child_changed(self):
@@ -128,6 +218,7 @@ class MutableDictAttribute:
                 processed = self.parent.process(self.real_name, current_value)
                 current_value._processing = False
                 setattr(self.parent, self.name, processed)
+
          
         #pub.sendMessage(f'{attr_name}_changed', value=value)
 
@@ -153,91 +244,7 @@ class DictWithAttributes:
             elif isinstance(value, dict):
                 self.process_dict(value)
 
-# Example usage and testing
-def on_dict_changed(key, value):
-    print(f"Dict changed: {key} = {value}")
 
-def on_page_info_changed(value):
-    print(f"page_info changed: {value}")
-
-if 0:
-    pub.subscribe(on_dict_changed, 'dict_changed')
-    pub.subscribe(on_page_info_changed, 'page_info_changed')
-
-    data = DictWithAttributes()
-    dt = date.today().strftime("%Y-%m-%d")
-
-    print("\nChanging followers:")
-    data.page_info[dt]['followers'] = 5
-    
-    print("\nChanging delta:")
-    data.page_info[dt]['delta'] = 2
-
-    print("\nAdding new date:")
-    new_dt = "2024-08-29"
-    data.page_info[new_dt] = {'followers': 10, 'delta': 5}
-
-    print("\nAccessing values:")
-    print(f"Followers: {data.page_info[dt]['followers']}")
-    print(f"Delta: {data.page_info[dt]['delta']}")
-    print(f"New date followers: {data.page_info[new_dt]['followers']}")
-    e()
-
-if 0:
-    class DictWithAttributes:
-        page_info = MutableDictAttribute()
-        def __init__(self) -> None:
-            from datetime import date
-            dt = date.today().strftime("%Y-%m-%d")
-            # Using attribute syntax with nested dictionaries
-            self.page_info = {dt:{'followers':0, 'delta':0}}
-            
-
-            
-            
-            print("\nAccessing nested values:")
-            print(f"Page ID: {self.page_info[dt]}")
-            
-            self.page_info[dt]['followers']=5
-            print(f"Page ID: {self.page_info[dt]}")
-        def process(self, attr_name, value):
-            print(f'-----parent Processing: {attr_name} {value} {type(value)}')
-            if attr_name == 'page_info' and isinstance(value, dict):
-                self.process_dict(value)
-
-            return value
-
-        def process_dict(self, d):
-            for key, value in d.items():
-                if isinstance(value, str):
-                    d[key] = value.strip()
-                elif isinstance(value, dict):
-                    self.process_dict(value)
-
-    # Example usage
-    if 1:
-        
-
-        data = DictWithAttributes()
-        if 1:
-            from datetime import date
-            dt = date.today().strftime("%Y-%m-%d")
-            
-            # Using attribute syntax with nested dictionaries
-            data.page_info = {dt: {'followers': 0, 'delta': 0}}
-            
-            print("\nAccessing nested values:")
-            print(f"Page ID: {data.page_info[dt]}")
-            
-            # Using attribute access
-            data.page_info[dt].followers = 5
-            print(f"Page ID: {data.page_info[dt]}")
-            
-            # Demonstrating attribute access
-            print(f"Followers: {data.page_info[dt].followers}")
-            print(f"Delta: {data.page_info[dt].delta}")        
-
-        e()  
 
 
 class MutableList(list):
@@ -309,23 +316,55 @@ class MutableListAttribute:
 class Config(): 
 
     app_config  = MutableDictAttribute()
+    app_log  = MutableDictAttribute()
+    ppl_log  = MutableDictAttribute()
+    chat=MutableAttribute()
     def __init__(self, **kwargs):
         self.cfg={}
+        self.mta=set()
         self.ts = datetime.now().strftime("%Y%m%d_%H%M%S")
         self.home=None
         self.data=None
         self.vars=None
+        
+        self.py_pipeline_name=None
+        self.yaml_pprompt_config=None
         #self.page_tokens_fn='.page_tokens.json'
         self.dump_file={}
-        self.titles={}
-        self.mta=set()
-        self.app_config=self.get_attr('app_config', {}, join('config', 'app_config.json')) 
-        self.app_config['current_title']=current_title=self.app_config.get('current_title', 'default')
-
-        self.current_title=current_title
+       
         
+        self.app_config=self.get_attr('app_config', {}, join('config', 'app_config.json')) 
+        self.log_dir='log'
+        if not isdir(self.log_dir):
+            os.makedirs(self.log_dir)
+        self.app_log=self.get_attr('app_log', {}, join(self.log_dir, f'app_log_{self.ts}.json')) 
+        self.app_log['ts']=self.ts
+        self.app_log['log']=[]
+
+    def set_pipeline_log(self,py_pipeline_name, yaml_pprompt_config):
+        print('Setting pipeline log:', py_pipeline_name, yaml_pprompt_config)
+        self.py_pipeline_name=py_pipeline_name
+        self.yaml_pprompt_config=yaml_pprompt_config
+        bn=basename(yaml_pprompt_config)
+        ppl_log_dir=join(self.log_dir, py_pipeline_name,)
+        if not isdir(ppl_log_dir):
+            os.makedirs(ppl_log_dir)
+        name, ext = splitext(bn)
+        fn=f'{py_pipeline_name}_{name}_{self.ts}.json'
+        self.yaml_pprompt_fn=fn
+        self.ppl_log=self.get_attr('ppl_log', {}, join(ppl_log_dir, fn)) 
+        self.ppl_log['ts']=self.ts
+        self.ppl_log['agent_response']=[]
+        self.log(f'Starting pipeline log: {ppl_log_dir}\\{fn}')
+
+      
+    def plog(self,agent_name, msg):
+        pub.sendMessage('ppllog',agent=agent_name, msg=msg)
+        self.ppl_log['agent_response'].append({'ts':datetime.now().strftime("%Y-%m-%d %H:%M:%S"),'agent_name':agent_name, 'py_pipeline_name':self.py_pipeline_name,
+                                       'yaml_pprompt_config':self.yaml_pprompt_config, 'chat':self.chat,'msg':msg})        
     def log(self, msg, type='info'):
         pub.sendMessage('applog', msg=msg, type=type)
+        self.app_log['log'].append({'ts':datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'msg':msg, 'type':type})
     def get_reel_descr(self):
         print   ('-----Getting reel descr:', self.user, self.page_id)
         return self.all_reel_descr[self.user].get(self.page_id,'No description')
@@ -403,7 +442,8 @@ class Config():
         assert dump_file, 'set_attr: No dump file specified'
         print('Dumping ******************************:', attr, dump_file)    
         with open(dump_file, 'w') as f:
-            json.dump(cfg, f, indent=2)
+            #json.dumps(example_dict, cls=CustomEncoder)
+            json.dump(cfg, f, cls=CustomEncoder, indent=2)
         
         
     def process(self, attr_name, value):

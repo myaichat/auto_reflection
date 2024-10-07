@@ -4,7 +4,7 @@ import include.config.init_config as init_config
 
 
 apc = init_config.apc
-
+plog=apc.plog
 class Writer():
     def __init__(self, verbose=apc.verbose):
         self.data, self.vars =data, vars = apc.data, apc.vars
@@ -16,6 +16,7 @@ class Writer():
         self.latest=[]
         if self.verbose:
             promp(self.writer_sysmsg, f"{self.agent_name}  system prompt")
+        apc.ppl_log['writer_sysmsg']=self.writer_sysmsg
         llm_config = data['llm_config']
         self.agent = AssistantAgent(
             name=agent_name,
@@ -34,7 +35,7 @@ class Writer():
         if self.verbose:  
             resp(agent_response, f'{self.agent_name} Response #{len(self.history)}:')
         self.agent_response = agent_response
-        
+        plog(self.agent_name, agent_response)
         return agent_response
     def get_latest_history(self):
         task_name, task,agent_response = self.history[-1]
@@ -52,13 +53,14 @@ class Critic():
         #self.recepient = recepient
         self.agent_name=agent_name="Critic"
         self.reflection_prompt = data['agents'][agent_name]['reflection_prompt']
-        self.agent_sysmsg=data['agents'][agent_name]['system_message'].format(**vars)
+        self.critic_sysmsg=data['agents'][agent_name]['system_message'].format(**vars)
+        apc.ppl_log['critic_sysmsg']=self.critic_sysmsg
         if self.verbose:
-            promp(self.agent_sysmsg, f"{self.agent_name}  system prompt")
+            promp(self.critic_sysmsg, f"{self.agent_name}  system prompt")
         llm_config = data['llm_config']
         self.agent = AssistantAgent(
             name=agent_name,
-            system_message=self.agent_sysmsg,
+            system_message=self.critic_sysmsg,
             llm_config=llm_config
         )  
     def add_history(self, messages):
@@ -73,7 +75,8 @@ class Critic():
             resp(agent_response, f'{self.agent_name}''s Response:')
         self.history.append(['reflection_prompt', self.reflection_prompt,agent_response])
         self.agent_response = agent_response
-        #self.receiever.add_history([{"role": "assistant", "content": f"{self.agent_name} Feedback:\n{agent_response}"}])
+        plog(self.agent_name, agent_response)
+        
         return agent_response  
     def get_latest_history(self):
         task_name, task,agent_response = self.history[-1]
@@ -90,6 +93,7 @@ class Reviewer():
         self.agent_name=agent_name
         self.reflection_prompt = data['agents'][agent_name]['reflection_prompt']
         self.agent_sysmsg=data['agents'][agent_name]['system_message'].format(**vars)
+        apc.ppl_log[f'{agent_name}_sysmsg']=self.agent_sysmsg
         if self.verbose:
             promp(self.agent_sysmsg, f"{self.agent_name}  system prompt")
 
@@ -111,7 +115,7 @@ class Reviewer():
             resp(agent_response, f'{self.agent_name}''s Response:')
         self.history.append(['reflection_prompt', self.reflection_prompt,agent_response])
         self.agent_response = agent_response
-        
+        plog(self.agent_name, agent_response)
         return agent_response 
     def get_latest_history(self):
         task_name, task,agent_response = self.history[-1]
@@ -128,6 +132,7 @@ class Summarizer():
         self.agent_name=agent_name
         self.summary_prompt = data['agents'][agent_name]['summary_prompt']
         self.agent_sysmsg=data['agents'][agent_name]['system_message'].format(**vars)
+        apc.ppl_log[f'{agent_name}_sysmsg']=self.agent_sysmsg
         if self.verbose:
             promp(self.agent_sysmsg, f"{self.agent_name}  system prompt")
         llm_config = data['llm_config']
@@ -148,7 +153,7 @@ class Summarizer():
             resp(agent_response, f'{self.agent_name}''s Response:')
         self.history.append(['summary_prompt', self.summary_prompt,agent_response])
         self.agent_response = agent_response
-        
+        plog(self.agent_name, agent_response)
         return agent_response 
     def get_latest_history(self):
         task_name, task,agent_response = self.history[-1]

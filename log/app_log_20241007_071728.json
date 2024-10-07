@@ -1,0 +1,12 @@
+{
+  "app_log": {
+    "ts": "20241007_071728",
+    "log": [
+      {
+        "ts": "2024-10-07 07:17:28",
+        "msg": "Starting pipeline log: log\\blog_writer\\blog_writer_topics_20241007_071728.json",
+        "type": "info"
+      }
+    ]
+  }
+}
