@@ -21,6 +21,9 @@ This repository contains a custom Python-based pipeline that automates the proce
 
     ```bash
     git clone https://github.com/myaichat/auto_reflection.git blog-writing-pipeline
+    cd blog-writing-pipeline
+    #to repeat output
+    git checkout 00e93b88fbce3788720e8c13a39802209645bffb
     ```
 
 2. Install the required dependencies:
