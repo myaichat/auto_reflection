@@ -90,6 +90,53 @@ The pipeline uses the following agents:
 ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ```
 
+## Mocking intermediary agents’ response
+If you want to mock/reuse any of the previous agent responses:
+
+1. Copy one of the pipeline logs from log\blog_writer to mock\blog_writer. Mock data will be read from [‘ppl_log’][‘agent_response’]
+2. Use copy of you ‘*.py’ pipeline name with mock turned on for chats you want to mock:
+```
+chats = [
+    {
+        "agent": writer,
+        
+        "action": "generate_reply",
+        "kwargs": {"task_name": "initial_task"},
+        "mock": True,
+    },
+```
+3. Use mocked pipeline. YAML prompt config file is the same,
+```
+py_pipeline_name='mock_blog_writer'
+
+yaml_pprompt_config=join('config','topics.yaml')
+
+title = "Building a Thriving Community: Collaborations and Initiatives at DeepLearning.AI"
+#mock config
+mock_file=join('mock','blog_writer','blog_writer_topics.json')
+assert isfile(mock_file), f"Mock file not found: {mock_file}"
+apc.load_mock(mock_file) 
+
+execute_pipeline(title, py_pipeline_name, yaml_pprompt_config)
+```
+Now steps you marked as mock=True will draw agent response from mock file:
+```
+╭─ SEO Reviewer's Response (mocked): ──────────────────────────────────────────────────────────────────────────────────╮
+│ I am an SEO reviewer. Here are my suggestions for optimizing the content provided for better search engine rankings  │
+│ and organic traffic:                                                                                                 │
+│                                                                                                                      │
+│ 1. **Keyword Integration**: Ensure that primary keywords such as "AI education," "community initiatives," and        │
+│ "DeepLearning.AI" are integrated naturally throughout the headings and body content to boost relevance.              │
+│                                                                                                                      │
+│ 2. **Headings Structure**: Utilize H2 and H3 tags to create a clear hierarchy in the content, enhancing readability  │
+│ and allowing search engines to understand the structure and main topics better.                                      │
+│                                                                                                                      │
+│ 3. **Meta Descriptions and Alt Text**: Include concise meta descriptions for each blog topic and leverage image alt  │
+│ text for accompanying visuals to improve visibility in search results and enhance user engagement.                   │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+```
+
+
 ## License
 
 This project is licensed under the MIT License.
