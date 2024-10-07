@@ -117,18 +117,18 @@ class AssistantAgent:
                     'response_format' : {
                     "type": "json_schema",
                     "json_schema": {
-                        "name": "titles",
+                        "name": "topics",
                         "schema": {
                             "type": "object",
                             "properties": {
-                                "titles": {
+                                "topics": {
                                     "type": "array",
                                     "items": {
                                         "type": "string"
                                     }
                                 }
                             },
-                            "required": ["titles"]
+                            "required": ["topics"]
                         }
                     }
                 }

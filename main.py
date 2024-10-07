@@ -1,5 +1,5 @@
 
-import yaml
+import yaml, json
 from    os.path import join, isfile
 from   pprint import pprint as pp   
 
@@ -85,8 +85,9 @@ def execute_pipeline(title, py_pipeline_name,yaml_pprompt_config):
         agent_kwargs['return_format']=return_format
         agent_response=action(**agent_kwargs)
         response.append(agent_response)
-  
-    return response[1]
+    
+    
+    return response[-1]
 
 
 if __name__ == '__main__':
@@ -106,4 +107,6 @@ if __name__ == '__main__':
             mock_file=join('mock','blog_writer','blog_writer_topics.json')
             assert isfile(mock_file), f"Mock file not found: {mock_file}"
             apc.load_mock(mock_file) 
-    execute_pipeline(title, py_pipeline_name, yaml_pprompt_config)
+    topics= execute_pipeline(title, py_pipeline_name, yaml_pprompt_config)
+    print(topics)
+    pp(json.loads(topics))

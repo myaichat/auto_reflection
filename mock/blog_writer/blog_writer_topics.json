@@ -115,7 +115,7 @@
             "task_name": "final_task"
           }
         },
-        "msg": "\n{\"titles\":[\"Introduction: Inspiring Change through Community Initiatives at DeepLearning.AI\",\"Collaborative Learning: Transforming Inclusive AI Education with Strategic Partnerships\",\"Empowering Voices: Celebrating Impactful Community-Driven AI Projects\",\"Networking Opportunities: Cultivating Meaningful Connections in the AI Ecosystem\",\"Conclusion: Envisioning the Future of Ethical Community Engagement at DeepLearning.AI\"]}"
+        "msg": "\n{\"topics\":[\"Introduction: Inspiring Change through Community Initiatives at DeepLearning.AI\",\"Collaborative Learning: Transforming Inclusive AI Education with Strategic Partnerships\",\"Empowering Voices: Celebrating Impactful Community-Driven AI Projects\",\"Networking Opportunities: Cultivating Meaningful Connections in the AI Ecosystem\",\"Conclusion: Envisioning the Future of Ethical Community Engagement at DeepLearning.AI\"]}"
       }
     ],
     "writer_sysmsg": "\"You are a writer tasked with generating a list of 5 potential blog topics/headlines \"\n\"including 'Introduction' and 'Conclusion' for the blogpost title: \"\nf\"'Building a Thriving Community: Collaborations and Initiatives at DeepLearning.AI'. Focus on making each headline concise, engaging, and reflective of different aspects \"\n\"of the blog topic. be concise \"\n",
