@@ -48,8 +48,13 @@ This repository contains a custom Python-based pipeline that automates the proce
 
     ```python
     if __name__ == '__main__':
-        title = "Using Agent Reflection for Writing a Blog"
-        execute_pipeline(title, "blog_writer", "config/topics.yaml")
+        py_pipeline_name='blog_writer'
+
+        yaml_pprompt_config=join('config','topics.yaml')
+
+        title = "Building a Thriving Community: Collaborations and Initiatives at DeepLearning.AI"
+        execute_pipeline(title, py_pipeline_name, yaml_pprompt_config)
+
     ```
 
 2. Run the Python script:
