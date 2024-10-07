@@ -12,31 +12,6 @@ from os.path import join, basename, isdir, isfile, splitext
 
 e=sys.exit
 
-class CustomEncoder(json.JSONEncoder):
-    def default(self, obj):
-        # Handle non-serializable objects here
-        if hasattr(obj, '__dict__'):
-            # Convert objects with __dict__ attribute to a dictionary
-            return obj.__dict__
-        elif isinstance(obj, dict):
-            # Convert keys to strings if necessary
-            return {str(key) if not isinstance(key, (str, int, float, bool, type(None))) else key: value
-                    for key, value in obj.items()}
-        elif isinstance(obj, list):
-            # Recursively handle lists
-            return [self.default(item) for item in obj]
-        else:
-            # Fallback to string representation for other types
-            return str(obj)
-
-# Recursive function to convert all dict values
-def make_serializable(d):
-    for key, value in d.items():
-        if isinstance(value, dict):
-            make_serializable(value)  # Recursive call for nested dicts
-        elif not isinstance(value, (int, float, str, list, dict)):
-            # Convert non-serializable objects to their string representation or dict
-            d[key] = json.dumps(value, cls=CustomEncoder)
 
 
 
@@ -63,17 +38,17 @@ class MutableAttribute:
         self.notify_change(processed_value)
 
     def process(self, value):
-        print('77711 Processing:', self.real_name, value)
+        #print('77711 Processing:', self.real_name, value)
         new_value = {}
         for key, val in value.items():
-            print(222, type(val))
+            #print(222, type(val))
             if not isinstance(val, (str, dict,int, float, bool, type(None))):
-                print('\t 999 Processing:', self.real_name, str(val))
-                new_value[key] =str(value)
+                #print('\t 999 Processing:', self.real_name, str(val))
+                new_value[key] =str(val)
             else:
                 new_value[key] = val
         if new_value:
-            pp(value)
+            #pp(value)
             value= new_value        
         if hasattr(self.parent, 'process'):
 
@@ -83,7 +58,7 @@ class MutableAttribute:
 
     def notify_change(self, value):
         pub.sendMessage(f'{self.real_name}_changed', value=value)
-        print('888 Notifying:', self.real_name, value)
+        #print('888 Notifying:', self.real_name, value)
 
         
         #pub.sendMessage('{self.real_name}_changed', name=self.real_name, value=value)
@@ -326,7 +301,8 @@ class Config():
         self.home=None
         self.data=None
         self.vars=None
-        
+        self.mock_file   = None
+        self.mock_data   = None
         self.py_pipeline_name=None
         self.yaml_pprompt_config=None
         #self.page_tokens_fn='.page_tokens.json'
@@ -340,7 +316,15 @@ class Config():
         self.app_log=self.get_attr('app_log', {}, join(self.log_dir, f'app_log_{self.ts}.json')) 
         self.app_log['ts']=self.ts
         self.app_log['log']=[]
-
+    def load_mock(self, mock_file): 
+        self.mock_file=mock_file
+        if isfile(mock_file):
+            with open(mock_file, 'r') as f:
+                data= json.load(f)
+                self.mock_data = data['ppl_log']["agent_response"]
+        else:
+            self.mock_data = {}
+        assert self.mock_data, ('Mock file not found:', mock_file)
     def set_pipeline_log(self,py_pipeline_name, yaml_pprompt_config):
         print('Setting pipeline log:', py_pipeline_name, yaml_pprompt_config)
         self.py_pipeline_name=py_pipeline_name
@@ -443,7 +427,7 @@ class Config():
         print('Dumping ******************************:', attr, dump_file)    
         with open(dump_file, 'w') as f:
             #json.dumps(example_dict, cls=CustomEncoder)
-            json.dump(cfg, f, cls=CustomEncoder, indent=2)
+            json.dump(cfg, f, indent=2)
         
         
     def process(self, attr_name, value):

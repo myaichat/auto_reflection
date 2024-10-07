@@ -27,13 +27,27 @@ class Writer():
         self.history=[]
     def add_history(self, messages):
         self.agent.chat_history += messages        
-    def generate_reply(self, task_name):
+    def generate_reply(self, task_name, mock=None):
+        mocked_response=None
+        mocked=''
+        if mock:
+
+            magent=mock["agent_name"]
+            
+            assert magent==self.agent_name, f"Agent name mismatch: {magent}!={self.agent_name}"
+            
+            
+            
+            mocked_response=mock['msg']
+            mocked='(mocked)'
+            
+
         task = self.data['agents']['Writer']['tasks'][task_name].format(**self.vars)
         
-        agent_response= self.agent.generate_reply(task)    
+        agent_response= self.agent.generate_reply(task, mocked_response=mocked_response)    
         self.history.append([task_name, task,agent_response])
         if self.verbose:  
-            resp(agent_response, f'{self.agent_name} Response #{len(self.history)}:')
+            resp(agent_response, f'{self.agent_name} Response #{len(self.history)} {mocked}:')
         self.agent_response = agent_response
         plog(self.agent_name, agent_response)
         return agent_response
@@ -67,12 +81,24 @@ class Critic():
         self.agent.chat_history += messages
 
 
-    def reflect_with_llm(self):
+    def reflect_with_llm(self, mock=None):
+        mocked_response=None
+        mocked=''
+        if mock:
+
+            magent=mock["agent_name"]
+            
+            assert magent==self.agent_name, f"Agent name mismatch: {magent}!={self.agent_name}"
+            
+            
+            
+            mocked_response=mock['msg']
+            mocked='(mocked)'        
 
 
-        agent_response= self.agent.reflect_with_llm(self.reflection_prompt)    
+        agent_response= self.agent.reflect_with_llm(self.reflection_prompt, mocked_response=mocked_response)    
         if self.verbose:  
-            resp(agent_response, f'{self.agent_name}''s Response:')
+            resp(agent_response, f"{self.agent_name}'s Response {mocked}:")
         self.history.append(['reflection_prompt', self.reflection_prompt,agent_response])
         self.agent_response = agent_response
         plog(self.agent_name, agent_response)
@@ -107,12 +133,24 @@ class Reviewer():
         self.agent.chat_history += messages
 
 
-    def reflect_with_llm(self):
+    def reflect_with_llm(self, mock=None):
+        mocked_response=None
+        mocked=''
+        if mock:
+
+            magent=mock["agent_name"]
+            
+            assert magent==self.agent_name, f"Agent name mismatch: {magent}!={self.agent_name}"
+            
+            
+            
+            mocked_response=mock['msg']
+            mocked='(mocked)'          
 
         print(self.agent_name, len(self.agent.chat_history))
-        agent_response= self.agent.reflect_with_llm(self.reflection_prompt)    
+        agent_response= self.agent.reflect_with_llm(self.reflection_prompt, mocked_response=mocked_response)    
         if self.verbose:  
-            resp(agent_response, f'{self.agent_name}''s Response:')
+            resp(agent_response, f"{self.agent_name}'s Response {mocked}:")
         self.history.append(['reflection_prompt', self.reflection_prompt,agent_response])
         self.agent_response = agent_response
         plog(self.agent_name, agent_response)
@@ -145,12 +183,23 @@ class Summarizer():
         self.agent.chat_history += messages
 
 
-    def summarize(self):
+    def summarize(self, mock=None):
+        mocked_response=None
+        mocked=''
+        if mock:
 
+            magent=mock["agent_name"]
+            
+            assert magent==self.agent_name, f"Agent name mismatch: {magent}!={self.agent_name}"
+            
+            
+            
+            mocked_response=mock['msg']
+            mocked='(mocked)'   
 
-        agent_response= self.agent.summarize(self.summary_prompt)    
+        agent_response= self.agent.summarize(self.summary_prompt, mocked_response=mocked_response)    
         if self.verbose:  
-            resp(agent_response, f'{self.agent_name}''s Response:')
+            resp(agent_response, f"{self.agent_name}'s Response {mocked}:")
         self.history.append(['summary_prompt', self.summary_prompt,agent_response])
         self.agent_response = agent_response
         plog(self.agent_name, agent_response)
