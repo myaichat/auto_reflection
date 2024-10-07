@@ -29,10 +29,10 @@ def import_pipeline(pipeline_name):
     spec.loader.exec_module(module)   
     return module 
 
-def execute_pipeline(title, pipeline_name,config):
+def execute_pipeline(title, py_pipeline_name,yaml_pprompt_config):
 
 
-    with open(config, 'r') as file:
+    with open(yaml_pprompt_config, 'r') as file:
         apc.data=data = yaml.safe_load(file)
 
     apc.vars=vars=  data['vars']
@@ -40,7 +40,7 @@ def execute_pipeline(title, pipeline_name,config):
         if val in globals():
             vars[key] = locals()[val]
     
-    pipeline= import_pipeline(pipeline_name)
+    pipeline= import_pipeline(py_pipeline_name)
     response=[]
     for chat in pipeline.chats:
         pp(chat)
@@ -62,9 +62,9 @@ def execute_pipeline(title, pipeline_name,config):
 
 
 if __name__ == '__main__':
-    py_pipeline_config='blog_writer'
+    py_pipeline_name='blog_writer'
 
-    yaml_pipeline_config=join('config','topics.yaml')
+    yaml_pprompt_config=join('config','topics.yaml')
 
     title = "Building a Thriving Community: Collaborations and Initiatives at DeepLearning.AI"
-    execute_pipeline(title, py_pipeline_config, yaml_pipeline_config)
+    execute_pipeline(title, py_pipeline_name, yaml_pprompt_config)
