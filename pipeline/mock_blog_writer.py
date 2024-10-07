@@ -69,6 +69,8 @@ chats = [
         "action": "generate_reply",
         "add_history_from": [meta_summarizer],
         "kwargs": {"task_name": "final_task"},
+        "return_format": "json",
+        "mock": True,
     }
 ]
 

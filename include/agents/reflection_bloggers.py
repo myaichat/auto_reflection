@@ -1,9 +1,14 @@
 from include.common import *
-from include.AssistantAgent import AssistantAgent  
 import include.config.init_config as init_config
 
 
 apc = init_config.apc
+
+if apc.llm_api=='openai':   
+    from include.openai_AssistantAgent import AssistantAgent  
+else:
+    raise Exception(f"LLM API not supported: {apc.llm_api}")
+
 plog=apc.plog
 class Writer():
     def __init__(self, verbose=apc.verbose):
@@ -27,7 +32,7 @@ class Writer():
         self.history=[]
     def add_history(self, messages):
         self.agent.chat_history += messages        
-    def generate_reply(self, task_name, mock=None):
+    def generate_reply(self, task_name, mock=None, return_format=None):
         mocked_response=None
         mocked=''
         if mock:
@@ -44,7 +49,7 @@ class Writer():
 
         task = self.data['agents']['Writer']['tasks'][task_name].format(**self.vars)
         
-        agent_response= self.agent.generate_reply(task, mocked_response=mocked_response)    
+        agent_response= self.agent.generate_reply(task, mocked_response=mocked_response,return_format=return_format)    
         self.history.append([task_name, task,agent_response])
         if self.verbose:  
             resp(agent_response, f'{self.agent_name} Response #{len(self.history)} {mocked}:')
@@ -81,7 +86,7 @@ class Critic():
         self.agent.chat_history += messages
 
 
-    def reflect_with_llm(self, mock=None):
+    def reflect_with_llm(self, mock=None, return_format=None):
         mocked_response=None
         mocked=''
         if mock:
@@ -96,7 +101,7 @@ class Critic():
             mocked='(mocked)'        
 
 
-        agent_response= self.agent.reflect_with_llm(self.reflection_prompt, mocked_response=mocked_response)    
+        agent_response= self.agent.reflect_with_llm(self.reflection_prompt, mocked_response=mocked_response, return_format=return_format)    
         if self.verbose:  
             resp(agent_response, f"{self.agent_name}'s Response {mocked}:")
         self.history.append(['reflection_prompt', self.reflection_prompt,agent_response])
@@ -133,7 +138,7 @@ class Reviewer():
         self.agent.chat_history += messages
 
 
-    def reflect_with_llm(self, mock=None):
+    def reflect_with_llm(self, mock=None, return_format=None):
         mocked_response=None
         mocked=''
         if mock:
@@ -148,7 +153,7 @@ class Reviewer():
             mocked='(mocked)'          
 
         print(self.agent_name, len(self.agent.chat_history))
-        agent_response= self.agent.reflect_with_llm(self.reflection_prompt, mocked_response=mocked_response)    
+        agent_response= self.agent.reflect_with_llm(self.reflection_prompt, mocked_response=mocked_response, return_format=return_format)    
         if self.verbose:  
             resp(agent_response, f"{self.agent_name}'s Response {mocked}:")
         self.history.append(['reflection_prompt', self.reflection_prompt,agent_response])
@@ -183,7 +188,7 @@ class Summarizer():
         self.agent.chat_history += messages
 
 
-    def summarize(self, mock=None):
+    def summarize(self, mock=None, return_format=None):
         mocked_response=None
         mocked=''
         if mock:
@@ -197,7 +202,7 @@ class Summarizer():
             mocked_response=mock['msg']
             mocked='(mocked)'   
 
-        agent_response= self.agent.summarize(self.summary_prompt, mocked_response=mocked_response)    
+        agent_response= self.agent.summarize(self.summary_prompt, mocked_response=mocked_response, return_format=return_format)    
         if self.verbose:  
             resp(agent_response, f"{self.agent_name}'s Response {mocked}:")
         self.history.append(['summary_prompt', self.summary_prompt,agent_response])

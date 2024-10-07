@@ -301,6 +301,7 @@ class Config():
         self.home=None
         self.data=None
         self.vars=None
+        self.llm_api=None
         self.mock_file   = None
         self.mock_data   = None
         self.py_pipeline_name=None

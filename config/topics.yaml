@@ -1,5 +1,7 @@
 llm_config:
-  model: "gpt-4o-mini"
+  llm_api: openai
+  model: gpt-4o-2024-08-06
+  model_: "gpt-4o-mini"
   model_: "gpt-3.5-turbo"
 
 vars:  
