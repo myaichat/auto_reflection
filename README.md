@@ -117,7 +117,7 @@ mock_file=join('mock','blog_writer','blog_writer_topics.json')
 assert isfile(mock_file), f"Mock file not found: {mock_file}"
 apc.load_mock(mock_file) 
 
-execute_pipeline(title, py_pipeline_name, yaml_pprompt_config)
+execute_pipeline(title, py_pipeline_name, yaml_pprompt_config) 
 ```
 Now steps you marked as mock=True will draw agent response from mock file:
 ```
