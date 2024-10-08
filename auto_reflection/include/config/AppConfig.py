@@ -1,5 +1,5 @@
 
-from include.config.Config import Config
+from ..config.Config import Config
 from datetime import date
 import logging
 

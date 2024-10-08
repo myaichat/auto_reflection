@@ -1,6 +1,6 @@
 
-from include.common import *
-from  include.agents.reflection_bloggers import Writer, Critic, Reviewer, Summarizer
+from auto_reflection.include.common import *
+from  auto_reflection.include.agents.reflection_bloggers import Writer, Critic, Reviewer, Summarizer
 
     
 import yaml

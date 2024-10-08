@@ -35,7 +35,7 @@ This repository contains a custom Python-based pipeline that automates the proce
 3. Ensure you have the following directory structure:
 
     ```plaintext
-    blog-writing-pipeline/
+   auto-reflection/
     ├── config/
     │   └── topics.yaml
     ├── include/

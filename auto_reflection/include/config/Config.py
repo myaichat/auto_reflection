@@ -2,7 +2,7 @@ import  os, sys, json, codecs
 import re
 from pubsub import pub
 from pprint import pprint as pp
-from include.common import PropertyDefaultDict
+from ..common import PropertyDefaultDict
 from pubsub import pub
 from datetime import datetime
 from datetime import date

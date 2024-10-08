@@ -1,11 +1,11 @@
-from include.common import *
-import include.config.init_config as init_config
+from ..common import *
+from ..config import init_config
 
 
 apc = init_config.apc
 
 if apc.llm_api=='openai':   
-    from include.openai_AssistantAgent import AssistantAgent  
+    from ..openai_AssistantAgent import AssistantAgent  
 else:
     raise Exception(f"LLM API not supported: {apc.llm_api}")
 

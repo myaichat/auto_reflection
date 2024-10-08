@@ -9,13 +9,6 @@ from auto_reflection import apc, execute_pipeline
 apc.verbose = True
 
 if __name__ == '__main__':
-    if 0:  # no mock
-        py_pipeline_name = 'mock_blog_writer'
-
-        yaml_pprompt_config = join('yaml_config', 'topics.yaml')
-
-        title = "Building a Thriving Community: Collaborations and Initiatives at DeepLearning.AI"
-
     if 1:  # mock
         py_pipeline_name = 'mock_blog_writer'
 
@@ -32,4 +25,3 @@ if __name__ == '__main__':
         topics = execute_pipeline(title, py_pipeline_name, yaml_pprompt_config)
         print(topics)
         pp(json.loads(topics))
-

@@ -1,4 +1,4 @@
-from include.config.AppConfig import AppConfig
+from ..config.AppConfig import AppConfig 
 
 # Initialize the AppConfig instance or any other relevant configuration here
 apc = AppConfig()

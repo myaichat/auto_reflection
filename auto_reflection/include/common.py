@@ -1,3 +1,4 @@
+
 import rich
 from rich.console import Console
 from rich.panel import Panel
@@ -8,6 +9,8 @@ from rich.markdown import Markdown
 #border_style="bold red", border_style="#FF5733", or border_style="cyan".
 #box=rich.box.ROUNDED, box=rich.box.SQUARE, box=rich.box.MINIMAL
 console = Console()
+
+
 
 def resp(msg, title):
     console.print(Panel(msg, title=title, title_align="left", border_style="cyan", 
@@ -52,49 +55,3 @@ class PropertyDefaultDict(defaultdict):
     def to_dict(self):
         return {k: v.to_dict() if isinstance(v, PropertyDefaultDict) else v for k, v in self.items()}
 
-
-class CustomError(Exception):
-    """Base class for custom exceptions in this module."""
-    pass
-
-class TokenExpiredError(CustomError):
-    """Raised when page token is expired."""
-    def __init__(self, r, json):
-        self.value = r.status_code
-        self.message = r.text
-        self.json   = json
-        super().__init__(self.message)
-
-    def __str__(self):
-        return f'{self.message}: {self.value}'
-    
-class ErrorValidatingAccessToken(CustomError):
-    """Raised when page token is expired."""
-  
-    def __init__(self, r, json):
-        if r:
-            self.value = r.status_code
-            self.message = r.text
-        else:
-            self.value = 0
-            self.message = json
-        self.json   = json
-        super().__init__(self.message)
-
-    def __str__(self):
-        return f'{self.message}: {self.value}'
-        
-
-
-
-class VideoUploadIsMissingError(CustomError):
-    """Raised when Video upload is missing ."""
-    def __init__(self, r, json):
-        self.value = r.status_code
-        self.message = r.text
-        self.json   = json
-        super().__init__(self.message)
-
-    def __str__(self):
-        return f'{self.message}: {self.value}'
-    
