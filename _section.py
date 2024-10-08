@@ -10,26 +10,27 @@ apc.verbose = True
 
 if __name__ == '__main__':
     if 0:  # no mock
-        py_pipeline_name = 'topics'
+        py_pipeline_name = 'section'
 
-        yaml_pprompt_config = join('yaml_config', 'topics.yaml')
-
+        yaml_pprompt_config = join('yaml_config', 'section.yaml')
+        theme = "DeepLearning.AI"
         title = "Building a Thriving Community: Collaborations and Initiatives at DeepLearning.AI"
-
+        topic='Introduction: Exploring the DeepLearning.AI Community Ecosystem'
     if 1:  # mock
-        py_pipeline_name = 'mocked_topics'
+        py_pipeline_name = 'section'
 
-        yaml_pprompt_config = join('yaml_config', 'topics.yaml')
-
+        yaml_pprompt_config = join('yaml_config', 'section.yaml')
+        theme = "DeepLearning.AI"
         title = "Building a Thriving Community: Collaborations and Initiatives at DeepLearning.AI"
+        topic='Introduction: Exploring the DeepLearning.AI Community Ecosystem'
         if 1:
-            mock_file = join('mock', 'blog_writer', 'topics.json')
+            mock_file = join('mock', 'blog_writer', 'section.json')
             assert isfile(mock_file), f"Mock file not found: {mock_file}"
             apc.load_mock(mock_file)  # Access apc to load mock data
         
     # Use execute_pipeline
     if 1:
-        topics = execute_pipeline(title, py_pipeline_name, yaml_pprompt_config)
-        print(topics)
-        pp(json.loads(topics))
+        section = execute_pipeline({'theme':theme, 'title':title, 'topic':topic}, py_pipeline_name, yaml_pprompt_config)
+        print(section)
+        pp(json.loads(section))
 

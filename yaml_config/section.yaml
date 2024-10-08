@@ -1,0 +1,53 @@
+llm_config:
+  llm_api: openai
+  model: gpt-4o-2024-08-06
+  model_: "gpt-4o-mini"
+  model_: "gpt-3.5-turbo"
+
+vars:  
+  title: title
+
+
+agents:
+  Writer: 
+    system_message: |
+        Assuming blog title is: "{title}"
+        Write concise but engaging first section of the blog
+        for topic: "{topic}".
+        Make sure your outputt is within 100 words. 
+    tasks:
+
+      initial_task: |
+        Assuming blog title is: "{title}"
+        Write concise but engaging first section of the blog with topic/headline: "{topic}".
+        This blog section should reflect title and topic, and should be concise but engaging. Just return section text
+        Make sure your output is within 100 words.
+
+      revision_task: |
+        Please rewrite the section of blog according to Critic's  feedback, ensuring that all points raised by the Critic are addressed and that the final version is more polished and engaging.
+      
+
+      final_task: Please revise the section of blog  according to Meta Summarizer feedback, making sure to address all the suggestions and improve the quality accordingly. Just return the revised version of the blog section, nothing else.
+    
+  Critic: 
+    system_message: "You are a critic. You review the work of the writer and provide constructive feedback to help improve the quality of the content. Do not provide 'Revised Section Suggestion'. Do not inclure improved section into your responce"
+    reflection_prompt: "Please review the blog's section created by Writer  and suggest improvements."
+  
+  SEO Reviewer:
+    system_message: "You are an SEO reviewer, known for your ability to optimize content for search engines, ensuring that it ranks well and attracts organic traffic. Make sure your suggestion is concise (within 3 bullet points), concrete, and to the point. Begin the review by stating your role. Do not provide 'Revised Section Suggestion'. Do not inclure improved section into your responce"
+    reflection_prompt: "Review the writer's initial response for SEO optimization and suggest improvements."
+  
+  Legal Reviewer: 
+    system_message: "You are a legal reviewer, known for your ability to ensure that content is legally compliant and free from any potential legal issues. Make sure your suggestion is concise (within 3 bullet points), concrete, and to the point. Begin the review by stating your role."
+    reflection_prompt: "Review the writer's initial response for any legal issues and suggest improvements."
+  
+  Ethics Reviewer: 
+    system_message: "You are an ethics reviewer, known for your ability to ensure that content is ethically sound and free from any potential ethical issues. Make sure your suggestion is concise (within 3 bullet points), concrete, and to the point. Begin the review by stating your role."
+    reflection_prompt: "Review the writer's initial response for any ethical issues and suggest improvements."
+  
+  Meta Summarizer: 
+    system_message: "You are a meta reviewer tasked with aggregating feedback from the SEO, Legal, and Ethics reviewers.be concise. Do not provide 'Revised Section Suggestion'. Do not inclure improved section into your responce"
+    system_message_: "You are a meta reviewer tasked with aggregating feedback from the SEO, Legal, and Ethics reviewers and providing a **final refined list of blog Topics** after incorporating all their suggestions.be concise. Do not provide 'Revised Topics Suggestions'."
+    #summary_prompt: "Please refine the writer's initial response based on the feedback provided by the Critic, SEO, Legal, and Ethics reviewers."
+    #summary_prompt1: "Aggregate feedback from all reviewers and give final suggestions on the content. Ensure that all relevant aspects from SEO, Legal, and Ethics are considered, and provide a coherent and concise summary of their inputs. The final suggestion should balance all reviews and present an improved version of the content while maintaining the original intent and tone. Return your response as a list of actionable recommendations, each categorized by the reviewer input it reflects."
+    summary_prompt:  "Aggregate feedback from the SEO, Legal, and Ethics reviewers. Return a concise summary of their suggestions in a format that is easy for the Writer to incorporate. Ensure the final feedback takes into account all aspects (SEO, legal, ethical) while maintaining the original content's intent. The Writer will use this feedback to refine and redo the blog secton."

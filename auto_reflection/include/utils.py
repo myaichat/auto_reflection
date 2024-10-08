@@ -26,22 +26,22 @@ def import_pipeline(pipeline_name):
     spec.loader.exec_module(module)   
     return module 
 
-def execute_pipeline(title, py_pipeline_name,yaml_pprompt_config):
+def execute_pipeline(pvars, py_pipeline_name,yaml_pprompt_config):
     apc.set_pipeline_log(py_pipeline_name, yaml_pprompt_config)
 
     with open(yaml_pprompt_config, 'r') as file:
         apc.data=data = yaml.safe_load(file)
     apc.llm_api=apc.data['llm_config'].get('llm_api', None)
     assert apc.llm_api, "LLM API not found in config"
-    apc.vars=vars=  data['vars']
-    for key, val in vars.items( ):
-        if val in globals():
-            vars[key] = locals()[val]
-    
+    if 0:
+        apc.vars=vars=  data['vars']
+        for key, val in vars.items( ):
+            if val in globals():
+                vars[key] = locals()[val]
+    apc.vars   = pvars
     pipeline= import_pipeline(py_pipeline_name)
     #exit()
     response=[]
-    
     for cid, chat in enumerate(pipeline.chats):
         #pp(chat)
         apc.chat=chat

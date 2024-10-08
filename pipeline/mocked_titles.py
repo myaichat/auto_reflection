@@ -19,7 +19,7 @@ chats = [
         
         "action": "generate_reply",
         "kwargs": {"task_name": "initial_task"},
-        "mock": False,
+        "mock": mocked,
     },
     {
         "agent": critic,    
@@ -69,23 +69,23 @@ chats = [
         "action": "generate_reply",
         "add_history_from": [meta_summarizer],
         "kwargs": {"task_name": "final_task"},
-        "mock": False,
+        "mock": True,
         
         'response_format' : {
             "type": "json_schema",
             "json_schema": {
-                "name": "topics",
+                "name": "titles",
                 "schema": {
                     "type": "object",
                     "properties": {
-                        "topics": {
+                        "titles": {
                             "type": "array",
                             "items": {
                                 "type": "string"
                             }
                         }
                     },
-                    "required": ["topics"]
+                    "required": ["titles"]
                 }
             }
         }

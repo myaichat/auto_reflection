@@ -12,21 +12,21 @@ seo_reviwer= Reviewer("SEO Reviewer")
 legal_reviewer= Reviewer("Legal Reviewer")
 ethics_reviewer= Reviewer("Ethics Reviewer")
 meta_summarizer= Summarizer("Meta Summarizer")
-
+mocked=True
 chats = [
     {
         "agent": writer,
         
         "action": "generate_reply",
         "kwargs": {"task_name": "initial_task"},
-        "mock": True,
+        "mock": mocked,
     },
     {
         "agent": critic,    
              
         "action": "reflect_with_llm",
         "add_history_from": [writer],
-        "mock": True,
+        "mock": mocked,
     },
     {   #we are reusing previously defined writer here
         "agent": writer,
@@ -34,35 +34,35 @@ chats = [
         "add_history_from": [critic],
         "action": "generate_reply",
         "kwargs": {"task_name": "revision_task"},
-        "mock": True,
+        "mock": mocked,
     },
     {   
         "agent": seo_reviwer, 
         "agent_name": "SEO Reviewer",     
         "action": "reflect_with_llm",
         "add_history_from": [writer],
-        "mock": True,
+        "mock": mocked,
     },
     {
         "agent": legal_reviewer,
         "agent_name": "Legal Reviewer",
         "action": "reflect_with_llm",
         "add_history_from": [writer],
-        "mock": True,
+        "mock": mocked,
     },
     {
         "agent": ethics_reviewer,
         "agent_name": "Ethics Reviewer",
         "action": "reflect_with_llm",
         "add_history_from": [writer],
-        "mock": True,
+        "mock": mocked,
     },
     {
         "agent": meta_summarizer,
         "agent_name": "Meta Summarizer",
         "action": "summarize",
         "add_history_from": [writer, seo_reviwer,legal_reviewer, ethics_reviewer],
-        "mock": True,
+        "mock": mocked,
     },
     {
         "agent": writer,        
@@ -74,18 +74,18 @@ chats = [
         'response_format' : {
             "type": "json_schema",
             "json_schema": {
-                "name": "titles",
+                "name": "topics",
                 "schema": {
                     "type": "object",
                     "properties": {
-                        "titles": {
+                        "topics": {
                             "type": "array",
                             "items": {
                                 "type": "string"
                             }
                         }
                     },
-                    "required": ["titles"]
+                    "required": ["topics"]
                 }
             }
         }
