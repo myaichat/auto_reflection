@@ -425,7 +425,7 @@ class Config():
         cfg[attr]=value
 
         assert dump_file, 'set_attr: No dump file specified'
-        print('Dumping ******************************:', attr, dump_file)    
+        #print('Dumping ******************************:', attr, dump_file)    
         with open(dump_file, 'w') as f:
             #json.dumps(example_dict, cls=CustomEncoder)
             json.dump(cfg, f, indent=2)

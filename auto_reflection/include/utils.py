@@ -2,6 +2,7 @@
 
 import yaml
 from os.path import join
+from pprint import pprint as pp
 import importlib.util
 import sys
 
@@ -73,10 +74,11 @@ def execute_pipeline(title, py_pipeline_name,yaml_pprompt_config):
             #pp(mocked_response)
             agent_kwargs['mock']=clog
         
-
+        #pp(agent_kwargs)
+        #exit()
            
-        return_format=chat.get('return_format', None)
-        agent_kwargs['return_format']=return_format
+        response_format=chat.get('response_format', None)
+        agent_kwargs['response_format']=response_format
         agent_response=action(**agent_kwargs)
         response.append(agent_response)
     

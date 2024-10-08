@@ -69,9 +69,28 @@ chats = [
         "action": "generate_reply",
         "add_history_from": [meta_summarizer],
         "kwargs": {"task_name": "final_task"},
-        "return_format": "json",
         "mock": True,
+        
+        'response_format' : {
+            "type": "json_schema",
+            "json_schema": {
+                "name": "titles",
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "titles": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "required": ["titles"]
+                }
+            }
+        }
     }
+    
 ]
 
 

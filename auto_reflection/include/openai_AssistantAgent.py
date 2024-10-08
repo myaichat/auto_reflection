@@ -9,7 +9,7 @@ class AssistantAgent:
         self.chat_history = []
         self.client = OpenAI()  # Initialize the OpenAI client
 
-    def generate_reply(self, task, mocked_response=None, return_format=None):
+    def generate_reply(self, task, mocked_response=None, response_format=None):
         # Append user message to chat history
         print(self.name, len(self.chat_history))
         
@@ -17,26 +17,9 @@ class AssistantAgent:
         
         # Generate response from the LLM using the updated API
         format={}
-        if return_format:
+        if response_format:
             format = {
-                    'response_format' : {
-                    "type": "json_schema",
-                    "json_schema": {
-                        "name": "titles",
-                        "schema": {
-                            "type": "object",
-                            "properties": {
-                                "titles": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "string"
-                                    }
-                                }
-                            },
-                            "required": ["titles"]
-                        }
-                    }
-                }
+                    'response_format' : response_format
             }
         if mocked_response:
             assistant_message=mocked_response
@@ -60,7 +43,7 @@ class AssistantAgent:
         
         return assistant_message
 
-    def reflect_with_llm(self, reflection_prompt, mocked_response=None, return_format=None):
+    def reflect_with_llm(self, reflection_prompt, mocked_response=None, response_format=None):
         # Generate reflection based on the conversation history
         print('reflection', self.name, len(self.chat_history))
         reflection_message = {
@@ -68,26 +51,9 @@ class AssistantAgent:
             "content": reflection_prompt
         }
         format={}
-        if return_format:
+        if response_format:
             format = {
-                    'response_format' : {
-                    "type": "json_schema",
-                    "json_schema": {
-                        "name": "titles",
-                        "schema": {
-                            "type": "object",
-                            "properties": {
-                                "titles": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "string"
-                                    }
-                                }
-                            },
-                            "required": ["titles"]
-                        }
-                    }
-                }
+                    'response_format' : response_format
             }
         if mocked_response:
             assistant_message=mocked_response
@@ -104,7 +70,7 @@ class AssistantAgent:
             assistant_message=response.choices[0].message.content
         return assistant_message
 
-    def summarize(self, summary_prompt, mocked_response=None, return_format=None):
+    def summarize(self, summary_prompt, mocked_response=None, response_format=None):
         # Generate reflection based on the conversation history
         print('summary', self.name, len(self.chat_history))
         summarization_message = {
@@ -112,26 +78,9 @@ class AssistantAgent:
             "content": summary_prompt
         }
         format={}
-        if return_format:
+        if response_format:
             format = {
-                    'response_format' : {
-                    "type": "json_schema",
-                    "json_schema": {
-                        "name": "topics",
-                        "schema": {
-                            "type": "object",
-                            "properties": {
-                                "topics": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "string"
-                                    }
-                                }
-                            },
-                            "required": ["topics"]
-                        }
-                    }
-                }
+                    'response_format' : response_format
             }        
         if mocked_response:
             assistant_message=mocked_response
